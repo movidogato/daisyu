@@ -130,6 +130,10 @@
   .tchips::-webkit-scrollbar{height:5px}
   .tchips::-webkit-scrollbar-thumb{background:#D7DBE0;border-radius:99px}
   .tchips::-webkit-scrollbar-track{background:transparent}
+  @media(min-width:900px){   /* PC: show every collection/playlist/tag, no scrolling needed */
+    .tchips{flex-wrap:wrap;overflow-x:visible;cursor:default;padding-bottom:0}
+    .tchips::-webkit-scrollbar{display:none}
+  }
   .tchip{
     border:1px solid #CDE7DE;background:#F2FBF8;color:#2f5e4f;border-radius:999px;
     padding:6px 12px;font-size:12.5px;font-weight:700;white-space:nowrap;display:flex;gap:6px;align-items:center;transition:.12s;
@@ -1856,6 +1860,20 @@ function seed(){
     if(el.scrollWidth<=el.clientWidth) return;
     if(Math.abs(e.deltaY)>=Math.abs(e.deltaX)){ el.scrollLeft+=e.deltaY; e.preventDefault(); }
   },{passive:false});
+  // explicit touch handling: some in-app browsers (KakaoTalk, Instagram, etc.) don't
+  // reliably hand horizontal touch-scroll to nested flex rows, so drive it manually too.
+  let tEl=null, tX=0, tY=0, tScroll=0, tHoriz=null;
+  document.addEventListener("touchstart",e=>{
+    const el=e.target.closest(".tchips"); if(!el || el.scrollWidth<=el.clientWidth) return;
+    tEl=el; const t=e.touches[0]; tX=t.clientX; tY=t.clientY; tScroll=el.scrollLeft; tHoriz=null;
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(!tEl) return;
+    const t=e.touches[0]; const dx=t.clientX-tX, dy=t.clientY-tY;
+    if(tHoriz===null && (Math.abs(dx)>6||Math.abs(dy)>6)) tHoriz=Math.abs(dx)>Math.abs(dy);
+    if(tHoriz){ tEl.scrollLeft=tScroll-dx; if(e.cancelable) e.preventDefault(); }
+  },{passive:false});
+  document.addEventListener("touchend",()=>{ if(tEl && tHoriz){ tEl.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); } tEl=null; tHoriz=null; },{passive:true});
 })();
 (async function init(){
   buildPlatPickers();

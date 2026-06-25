@@ -60,7 +60,7 @@
 
   /* ---------- Board bar ---------- */
   .boardbar{display:flex;align-items:center;gap:8px;max-width:1280px;margin:13px auto 0}
-  .bchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px}
+  .bchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px;touch-action:none}
   .bchips::-webkit-scrollbar{display:none}
   .bchip{
     border:1px solid #3A3D47;background:transparent;color:#C7CAD0;border-radius:10px;
@@ -107,7 +107,7 @@
     max-width:1280px;margin:14px auto 0;padding:0 18px;
     display:flex;gap:8px;flex-wrap:wrap;align-items:center;
   }
-  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px;touch-action:none}
   .chips::-webkit-scrollbar{display:none}
   .chip{
     border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
@@ -549,6 +549,20 @@
 </div>
 
 <!-- Account ranking modal -->
+<!-- Tag removal modal -->
+<div class="modal-bg" id="untagModalBg">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>태그 해제</h2>
+      <button class="xbtn" id="untagModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 12px">선택한 <b id="untagCount">0</b>개 항목 — 해제할 태그를 누르세요</p>
+      <div id="untagChipList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="acctModalBg">
   <div class="modal">
     <div class="modal-head">
@@ -1441,15 +1455,24 @@ document.getElementById("cmpTag").onclick=()=>{
 };
 document.getElementById("cmpUntag").onclick=()=>{
   if(!selected.size){ toast("먼저 카드를 선택하세요"); return; }
-  const present=new Set();
-  items.forEach(it=>{ if(selected.has(it.id)&&it.tags) it.tags.forEach(t=>present.add(t)); });
+  const present=new Map();
+  items.forEach(it=>{ if(selected.has(it.id)&&it.tags) it.tags.forEach(t=>present.set(t,(present.get(t)||0)+1)); });
   if(!present.size){ toast("선택한 항목에 태그가 없어요"); return; }
-  const t=(prompt(`해제할 태그 이름을 입력하세요\n현재 태그: ${[...present].join(", ")}`)||"").trim();
-  if(!t) return;
+  document.getElementById("untagCount").textContent=selected.size;
+  document.getElementById("untagChipList").innerHTML=[...present.entries()].map(([t,n])=>
+    `<button class="tchip" data-untag="${esc(t)}" style="cursor:pointer">${esc(t)} <span style="opacity:.55">${n}</span></button>`
+  ).join("");
+  document.getElementById("untagModalBg").classList.add("show");
+};
+document.getElementById("untagModalClose").onclick=()=>document.getElementById("untagModalBg").classList.remove("show");
+document.getElementById("untagModalBg").onclick=(e)=>{ if(e.target.id==="untagModalBg") e.currentTarget.classList.remove("show"); };
+document.getElementById("untagChipList").onclick=(e)=>{
+  const btn=e.target.closest("[data-untag]"); if(!btn) return;
+  const t=btn.dataset.untag;
   let n=0;
   items.forEach(it=>{ if(selected.has(it.id) && it.tags && it.tags.includes(t)){ it.tags=it.tags.filter(x=>x!==t); n++; } });
-  if(!n){ toast(`'${t}' 태그를 가진 항목이 없어요`); return; }
   persist();
+  document.getElementById("untagModalBg").classList.remove("show");
   selected.clear(); document.querySelectorAll(".card.sel").forEach(c=>c.classList.remove("sel"));
   render();
   toast(`'${t}' 태그 ${n}개에서 해제`);
@@ -1478,10 +1501,6 @@ function openCompare(){
   const matrixRows=rows.map(r=>{
     const vals=sel.map(r.f);
     const best=r.hi?Math.max(...vals):null;
-    const cells=sel.map(v0=>{
-      const v=r.f(sel[sel.indexOf(sel.find(()=>false))]); // placeholder
-      return "";
-    });
     const cellHTML=sel.map(it=>{
       const v=r.f(it);
       const isBest=r.hi && best>=0 && v===best && vals.filter(x=>x===best).length<sel.length;
@@ -1859,42 +1878,47 @@ function seed(){
 }
 
 /* ---------- init ---------- */
-(function(){ // click-and-drag + wheel horizontal scroll for long chip rows (컬렉션/태그)
-  let dragEl=null, startX=0, startScroll=0, moved=false;
-  document.addEventListener("mousedown",e=>{
-    const el=e.target.closest(".tchips"); if(!el) return;
-    dragEl=el; startX=e.clientX; startScroll=el.scrollLeft; moved=false;
+function makeDragScrollable(el){
+  if(!el) return;
+  // touch: bound directly on the element (not delegated from document) — more reliable
+  // on iOS Safari / in-app browsers (KakaoTalk, Instagram, etc.) than document-level delegation.
+  let tX=0,tY=0,tScroll=0,tHoriz=null,dragging=false;
+  el.addEventListener("touchstart",e=>{
+    if(el.scrollWidth<=el.clientWidth) return;
+    const t=e.touches[0]; tX=t.clientX; tY=t.clientY; tScroll=el.scrollLeft; tHoriz=null; dragging=true;
+  },{passive:true});
+  el.addEventListener("touchmove",e=>{
+    if(!dragging) return;
+    const t=e.touches[0]; const dx=t.clientX-tX, dy=t.clientY-tY;
+    if(tHoriz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) tHoriz=Math.abs(dx)>=Math.abs(dy)*0.8;
+    if(tHoriz){ el.scrollLeft=tScroll-dx; if(e.cancelable) e.preventDefault(); }
+  },{passive:false});
+  el.addEventListener("touchend",()=>{
+    if(dragging&&tHoriz){ el.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); }
+    dragging=false; tHoriz=null;
+  },{passive:true});
+  // mouse: click-and-drag for desktop pointers
+  let mX=0,mScroll=0,mMoved=false,mDown=false;
+  el.addEventListener("mousedown",e=>{
+    if(el.scrollWidth<=el.clientWidth) return;
+    mDown=true; mX=e.clientX; mScroll=el.scrollLeft; mMoved=false;
   });
-  document.addEventListener("mousemove",e=>{
-    if(!dragEl) return;
-    const dx=e.clientX-startX;
-    if(Math.abs(dx)>3) moved=true;
-    if(moved) dragEl.scrollLeft=startScroll-dx;
+  window.addEventListener("mousemove",e=>{
+    if(!mDown) return;
+    const dx=e.clientX-mX; if(Math.abs(dx)>3) mMoved=true;
+    if(mMoved) el.scrollLeft=mScroll-dx;
   });
   window.addEventListener("mouseup",()=>{
-    if(dragEl && moved){ dragEl.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); }
-    dragEl=null;
+    if(mDown&&mMoved){ el.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); }
+    mDown=false;
   });
-  document.addEventListener("wheel",e=>{
-    const el=e.target.closest(".tchips"); if(!el) return;
+  // wheel: convert vertical wheel to horizontal scroll while hovering
+  el.addEventListener("wheel",e=>{
     if(el.scrollWidth<=el.clientWidth) return;
     if(Math.abs(e.deltaY)>=Math.abs(e.deltaX)){ el.scrollLeft+=e.deltaY; e.preventDefault(); }
   },{passive:false});
-  // explicit touch handling: some in-app browsers (KakaoTalk, Instagram, etc.) don't
-  // reliably hand horizontal touch-scroll to nested flex rows, so drive it manually too.
-  let tEl=null, tX=0, tY=0, tScroll=0, tHoriz=null;
-  document.addEventListener("touchstart",e=>{
-    const el=e.target.closest(".tchips"); if(!el || el.scrollWidth<=el.clientWidth) return;
-    tEl=el; const t=e.touches[0]; tX=t.clientX; tY=t.clientY; tScroll=el.scrollLeft; tHoriz=null;
-  },{passive:true});
-  document.addEventListener("touchmove",e=>{
-    if(!tEl) return;
-    const t=e.touches[0]; const dx=t.clientX-tX, dy=t.clientY-tY;
-    if(tHoriz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) tHoriz=Math.abs(dx)>=Math.abs(dy)*0.8;
-    if(tHoriz){ tEl.scrollLeft=tScroll-dx; if(e.cancelable) e.preventDefault(); }
-  },{passive:false});
-  document.addEventListener("touchend",()=>{ if(tEl && tHoriz){ tEl.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); } tEl=null; tHoriz=null; },{passive:true});
-})();
+}
+["collChips","tagChips","boardChips","platChips"].forEach(id=>makeDragScrollable(document.getElementById(id)));
 (async function init(){
   buildPlatPickers();
   try{ await initCloud(); }catch(e){}

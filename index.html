@@ -126,7 +126,7 @@
   .tagbar .tlabel{font-size:11px;font-weight:800;color:var(--ink-faint);letter-spacing:.04em;flex:none;text-transform:uppercase;width:44px}
   .tchips{
     display:flex;flex-wrap:nowrap;gap:6px;flex:1;min-width:0;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:none;
     padding-bottom:6px;cursor:grab;scrollbar-width:thin;
   }
   .tchips:active{cursor:grabbing}
@@ -416,6 +416,7 @@
   <div class="rt">
     <button class="clr" id="cmpClear">해제</button>
     <button class="go" id="cmpTag" style="background:#7C6FFF;color:#fff">태그 추가</button>
+    <button class="go" id="cmpUntag" style="background:#fff;color:#7C6FFF;border:1px solid #7C6FFF">태그 해제</button>
     <button class="go" id="cmpGo">비교하기</button>
   </div>
 </div>
@@ -1437,6 +1438,21 @@ document.getElementById("cmpTag").onclick=()=>{
   selected.clear(); document.querySelectorAll(".card.sel").forEach(c=>c.classList.remove("sel"));
   render();
   toast(`'${t}' 태그 ${n}개에 추가`);
+};
+document.getElementById("cmpUntag").onclick=()=>{
+  if(!selected.size){ toast("먼저 카드를 선택하세요"); return; }
+  const present=new Set();
+  items.forEach(it=>{ if(selected.has(it.id)&&it.tags) it.tags.forEach(t=>present.add(t)); });
+  if(!present.size){ toast("선택한 항목에 태그가 없어요"); return; }
+  const t=(prompt(`해제할 태그 이름을 입력하세요\n현재 태그: ${[...present].join(", ")}`)||"").trim();
+  if(!t) return;
+  let n=0;
+  items.forEach(it=>{ if(selected.has(it.id) && it.tags && it.tags.includes(t)){ it.tags=it.tags.filter(x=>x!==t); n++; } });
+  if(!n){ toast(`'${t}' 태그를 가진 항목이 없어요`); return; }
+  persist();
+  selected.clear(); document.querySelectorAll(".card.sel").forEach(c=>c.classList.remove("sel"));
+  render();
+  toast(`'${t}' 태그 ${n}개에서 해제`);
 };
 
 function openCompare(){

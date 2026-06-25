@@ -65,13 +65,14 @@
   .bchip{
     border:1px solid #3A3D47;background:transparent;color:#C7CAD0;border-radius:10px;
     padding:8px 13px;font-size:13.5px;font-weight:700;white-space:nowrap;display:flex;gap:7px;align-items:center;transition:.12s;
+    flex-shrink:0;
   }
   .bchip.on{background:#fff;color:var(--ink);border-color:#fff}
   .bchip .bc{font-family:var(--mono);font-size:11px;opacity:.65;font-weight:700}
   .bchip.on .bc{opacity:.5}
-  .boardbar .new,.boardbar .gear{flex:none;border:1px solid #3A3D47;background:transparent;border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px}
-  .boardbar .new{color:var(--accent);border-style:dashed}
-  .boardbar .gear{color:#C7CAD0}
+  .new,.gear{flex:none;border:1px solid #3A3D47;background:transparent;border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px}
+  .new{color:var(--accent);border-style:dashed}
+  .gear{color:#C7CAD0}
 
   /* ---------- Stats strip ---------- */
   .stats{display:flex;gap:8px;max-width:1280px;margin:12px auto 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -91,6 +92,7 @@
     .head-actions{gap:6px;flex-wrap:wrap}
     .add-btn{padding:8px 12px;font-size:13px}
     .menu-btn{padding:7px 9px;font-size:12px}
+    .new,.gear{padding:7px 9px;font-size:12px}
     .stats{gap:6px}
     .stat{padding:7px 10px;min-width:72px;border-radius:9px}
     .stat .k{font-size:9.5px}
@@ -110,6 +112,7 @@
   .chip{
     border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
     border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;white-space:nowrap;transition:.12s;
+    flex-shrink:0;
   }
   .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   .sort-wrap{display:flex;align-items:center;gap:6px;flex:none}
@@ -137,6 +140,7 @@
   .tchip{
     border:1px solid #CDE7DE;background:#F2FBF8;color:#2f5e4f;border-radius:999px;
     padding:6px 12px;font-size:12.5px;font-weight:700;white-space:nowrap;display:flex;gap:6px;align-items:center;transition:.12s;
+    flex-shrink:0;
   }
   .tchip .tc{font-family:var(--mono);font-size:10px;opacity:.7}
   .tchip.on{background:var(--accent);color:#04231a;border-color:var(--accent)}
@@ -370,14 +374,14 @@
       <button class="menu-btn" id="syncBtn" title="동기화 · 로그인">☁</button>
       <button class="menu-btn" id="importBtn" title="JSON/ZIP 가져오기">⤒</button>
       <button class="menu-btn" id="exportBtn" title="JSON 백업">⤓</button>
+      <button class="new" id="newBoard" title="새 보드">＋ 보드</button>
+      <button class="gear" id="manageBoards" title="보드 관리">⚙</button>
       <button class="add-btn" id="openAdd">＋ 추가</button>
     </div>
     <input type="file" id="importFile" accept=".json,.zip,.csv,.xlsx,.xls,application/json,text/csv" style="display:none" />
   </div>
   <div class="boardbar">
     <div class="bchips" id="boardChips"></div>
-    <button class="new" id="newBoard">＋ 보드</button>
-    <button class="gear" id="manageBoards" title="보드 관리">⚙</button>
   </div>
   <div class="stats" id="stats"></div>
 </header>

@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>다이쓔</title>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
@@ -403,6 +402,7 @@
 </div>
 <div class="activefilter" id="activeFilter"></div>
 <div class="toolbar tagbar" id="tagbar" style="display:none">
+  <div id="debugInfo" style="font:11px monospace;background:#ffe9b0;color:#333;padding:8px 10px;border-radius:8px;margin-bottom:8px;width:100%;line-height:1.5">진단 정보 로딩중...</div>
   <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div></div>
   <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div></div>
 </div>
@@ -963,7 +963,25 @@ function renderTagChips(){
     else { filterTag=c.dataset.v; filterColl=null; }
     render();
   });
+  updateDebugInfo();
 }
+let _touchCount=0, _lastDx=0;
+function updateDebugInfo(){
+  const el=document.getElementById("debugInfo"); if(!el) return;
+  const c=document.getElementById("collChips");
+  if(!c){ el.textContent="collChips 없음"; return; }
+  const cs=getComputedStyle(c);
+  el.innerHTML = `scrollWidth: ${c.scrollWidth} / clientWidth: ${c.clientWidth}<br>`
+    + `overflow-x: ${cs.overflowX} / touch-action: ${cs.touchAction}<br>`
+    + `터치이벤트 감지: ${_touchCount}회 / 마지막 이동량: ${_lastDx}px`;
+}
+(function(){
+  const c=document.getElementById("collChips");
+  if(c){
+    c.addEventListener("touchstart",()=>{ _touchCount++; updateDebugInfo(); },{passive:true});
+    c.addEventListener("touchmove",e=>{ _touchCount++; _lastDx=Math.round(e.touches[0].clientX); updateDebugInfo(); },{passive:true});
+  }
+})();
 
 function renderStats(){
   const el=document.getElementById("stats");

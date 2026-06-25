@@ -124,7 +124,7 @@
   .tchips{
     display:flex;flex-wrap:nowrap;gap:6px;flex:1;min-width:0;
     overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;
-    padding-bottom:6px;scroll-behavior:smooth;cursor:grab;scrollbar-width:thin;
+    padding-bottom:6px;cursor:grab;scrollbar-width:thin;
   }
   .tchips:active{cursor:grabbing}
   .tchips::-webkit-scrollbar{height:5px}
@@ -1870,7 +1870,7 @@ function seed(){
   document.addEventListener("touchmove",e=>{
     if(!tEl) return;
     const t=e.touches[0]; const dx=t.clientX-tX, dy=t.clientY-tY;
-    if(tHoriz===null && (Math.abs(dx)>6||Math.abs(dy)>6)) tHoriz=Math.abs(dx)>Math.abs(dy);
+    if(tHoriz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) tHoriz=Math.abs(dx)>=Math.abs(dy)*0.8;
     if(tHoriz){ tEl.scrollLeft=tScroll-dx; if(e.cancelable) e.preventDefault(); }
   },{passive:false});
   document.addEventListener("touchend",()=>{ if(tEl && tHoriz){ tEl.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); } tEl=null; tHoriz=null; },{passive:true});

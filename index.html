@@ -60,7 +60,7 @@
 
   /* ---------- Board bar ---------- */
   .boardbar{display:flex;align-items:center;gap:8px;max-width:1280px;margin:13px auto 0}
-  .bchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px;touch-action:none}
+  .bchips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px}
   .bchips::-webkit-scrollbar{display:none}
   .bchip{
     border:1px solid #3A3D47;background:transparent;color:#C7CAD0;border-radius:10px;
@@ -107,7 +107,7 @@
     max-width:1280px;margin:14px auto 0;padding:0 18px;
     display:flex;gap:8px;flex-wrap:wrap;align-items:center;
   }
-  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px;touch-action:none}
+  .chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0;padding-bottom:2px}
   .chips::-webkit-scrollbar{display:none}
   .chip{
     border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
@@ -126,7 +126,7 @@
   .tagbar .tlabel{font-size:11px;font-weight:800;color:var(--ink-faint);letter-spacing:.04em;flex:none;text-transform:uppercase;width:44px}
   .tchips{
     display:flex;flex-wrap:nowrap;gap:6px;flex:1;min-width:0;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:none;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
     padding-bottom:6px;cursor:grab;scrollbar-width:thin;
   }
   .tchips:active{cursor:grabbing}
@@ -1880,24 +1880,9 @@ function seed(){
 /* ---------- init ---------- */
 function makeDragScrollable(el){
   if(!el) return;
-  // touch: bound directly on the element (not delegated from document) — more reliable
-  // on iOS Safari / in-app browsers (KakaoTalk, Instagram, etc.) than document-level delegation.
-  let tX=0,tY=0,tScroll=0,tHoriz=null,dragging=false;
-  el.addEventListener("touchstart",e=>{
-    if(el.scrollWidth<=el.clientWidth) return;
-    const t=e.touches[0]; tX=t.clientX; tY=t.clientY; tScroll=el.scrollLeft; tHoriz=null; dragging=true;
-  },{passive:true});
-  el.addEventListener("touchmove",e=>{
-    if(!dragging) return;
-    const t=e.touches[0]; const dx=t.clientX-tX, dy=t.clientY-tY;
-    if(tHoriz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) tHoriz=Math.abs(dx)>=Math.abs(dy)*0.8;
-    if(tHoriz){ el.scrollLeft=tScroll-dx; if(e.cancelable) e.preventDefault(); }
-  },{passive:false});
-  el.addEventListener("touchend",()=>{
-    if(dragging&&tHoriz){ el.addEventListener("click",ev=>ev.stopPropagation(),{capture:true,once:true}); }
-    dragging=false; tHoriz=null;
-  },{passive:true});
-  // mouse: click-and-drag for desktop pointers
+  // mobile: rely entirely on native overflow-x:auto scrolling (same as the working .stats row) —
+  // no custom touch JS, since touch-action:none + manual JS was fighting native scroll and breaking it.
+  // mouse: click-and-drag for desktop pointers (native scroll has no drag-by-mouse otherwise)
   let mX=0,mScroll=0,mMoved=false,mDown=false;
   el.addEventListener("mousedown",e=>{
     if(el.scrollWidth<=el.clientWidth) return;

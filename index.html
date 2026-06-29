@@ -121,11 +121,11 @@
     border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;
   }
   /* tag bar */
-  .tagbar{margin-top:10px;flex-direction:column;align-items:stretch;gap:10px}
-  .chiprow{display:block;min-width:0}
-  .tagbar .tlabel{display:block;font-size:11px;font-weight:800;color:var(--ink-faint);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+  .tagbar{margin-top:10px;flex-direction:column;align-items:stretch;gap:6px}
+  .chiprow{display:flex;align-items:center;gap:8px;min-width:0}
+  .tagbar .tlabel{font-size:11px;font-weight:800;color:var(--ink-faint);letter-spacing:.04em;flex:none;text-transform:uppercase;width:44px}
   .tchips{
-    display:flex;flex-wrap:nowrap;gap:6px;width:100%;
+    display:flex;flex-wrap:nowrap;gap:6px;flex:1;min-width:0;max-width:100%;
     overflow-x:auto;-webkit-overflow-scrolling:touch;
     padding-bottom:6px;cursor:grab;scrollbar-width:thin;
   }
@@ -402,7 +402,6 @@
 </div>
 <div class="activefilter" id="activeFilter"></div>
 <div class="toolbar tagbar" id="tagbar" style="display:none">
-  <div id="debugInfo" style="font:11px monospace;background:#ffe9b0;color:#333;padding:8px 10px;border-radius:8px;margin-bottom:8px;width:100%;line-height:1.5">진단 정보 로딩중...</div>
   <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div></div>
   <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div></div>
 </div>
@@ -963,25 +962,7 @@ function renderTagChips(){
     else { filterTag=c.dataset.v; filterColl=null; }
     render();
   });
-  updateDebugInfo();
 }
-let _touchCount=0, _lastDx=0;
-function updateDebugInfo(){
-  const el=document.getElementById("debugInfo"); if(!el) return;
-  const c=document.getElementById("collChips");
-  if(!c){ el.textContent="collChips 없음"; return; }
-  const cs=getComputedStyle(c);
-  el.innerHTML = `scrollWidth: ${c.scrollWidth} / clientWidth: ${c.clientWidth}<br>`
-    + `overflow-x: ${cs.overflowX} / touch-action: ${cs.touchAction}<br>`
-    + `터치이벤트 감지: ${_touchCount}회 / 마지막 이동량: ${_lastDx}px`;
-}
-(function(){
-  const c=document.getElementById("collChips");
-  if(c){
-    c.addEventListener("touchstart",()=>{ _touchCount++; updateDebugInfo(); },{passive:true});
-    c.addEventListener("touchmove",e=>{ _touchCount++; _lastDx=Math.round(e.touches[0].clientX); updateDebugInfo(); },{passive:true});
-  }
-})();
 
 function renderStats(){
   const el=document.getElementById("stats");

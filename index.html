@@ -364,13 +364,18 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .menu-btn{background:#fff;border:1px solid var(--line);color:var(--ink-soft);border-radius:10px;padding:9px 11px;font-size:13px;font-weight:700;flex:none}
 
-  .cfoot .delbtn{flex:0 0 30px;padding:6px 0;color:#C0453F;border-color:#F0D2D2;background:#fff;font-size:12px}
-  .cfoot .delbtn:hover{background:#FBEFEF;color:#C0453F}
+  .cfoot .morebtn{flex:0 0 34px;padding:6px 0;font-size:14px;font-weight:800;letter-spacing:1px}
+  .ctxmenu{position:fixed;z-index:95;background:#fff;border:1px solid var(--line);border-radius:13px;
+    box-shadow:0 10px 30px rgba(20,40,60,.16);min-width:158px;overflow:hidden;display:none}
+  .ctxmenu.show{display:block}
+  .ctxmenu button{display:block;width:100%;text-align:left;padding:12px 15px;border:none;background:#fff;
+    font-size:13.5px;font-weight:600;color:var(--ink)}
+  .ctxmenu button:active{background:#F3F8FC}
+  .ctxmenu button+button{border-top:1px solid #F0F4F8}
+  .ctxmenu .danger{color:#C0453F}
   .cmpbar .danger{background:#E24B4A;color:#fff}
 
   .nudges{display:flex;gap:4px;flex:none;align-items:center}
-  .nudge{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-weight:800;font-size:15px;line-height:1;padding:0}
-  .nudge:active{background:#F3F8FC}
   @media(min-width:900px){.tagbar .nudges{display:none}}
   .tchips,.bchips,.chips{touch-action:pan-x;overscroll-behavior-x:contain}
   .tchips.expand{flex-wrap:wrap;overflow-x:visible;cursor:default;padding-bottom:0}
@@ -409,41 +414,32 @@
       <small id="subtitle">내가 저장한 거, 다 있어</small>
     </div>
     <div class="head-actions" style="display:flex;gap:8px;align-items:center">
-      <button class="menu-btn" id="syncBtn" title="동기화 · 로그인">☁</button>
-      <button class="menu-btn" id="importBtn" title="JSON/ZIP 가져오기">⤒</button>
-      <button class="menu-btn" id="exportBtn" title="JSON 백업">⤓</button>
-      <button class="new" id="newBoard" title="새 보드">＋ 보드</button>
-      <button class="gear" id="manageBoards" title="보드 관리">⚙</button>
+      <button class="menu-btn" id="syncBtn" title="동기화 · 로그인">☁ 동기화</button>
+      <button class="gear" id="manageBoards" title="보드 · 설정">⚙</button>
       <button class="add-btn" id="openAdd">＋ 추가</button>
     </div>
     <input type="file" id="importFile" accept=".json,.zip,.csv,.xlsx,.xls,application/json,text/csv" style="display:none" />
   </div>
   <div class="boardbar">
     <div class="bchips" id="boardChips"></div>
-    <div class="nudges"><button class="nudge" data-nudge="boardChips" data-dir="l">‹</button><button class="nudge" data-nudge="boardChips" data-dir="r">›</button></div>
   </div>
   <div class="stats" id="stats"></div>
 </header>
 
 <div class="toolbar">
   <div class="chips" id="platChips"></div>
-  <div class="nudges"><button class="nudge" data-nudge="platChips" data-dir="l">‹</button><button class="nudge" data-nudge="platChips" data-dir="r">›</button></div>
   <div class="sort-wrap">
-    <button class="sort" id="acctRankBtn" title="계정 순위">계정 순위</button>
     <button class="sort" id="unsaveOnlyBtn" title="해제예정만 보기">해제예정</button>
     <select class="sort" id="sortSel">
       <option value="new">최신순</option>
       <option value="views">조회수순</option>
-      <option value="likes">좋아요순</option>
-      <option value="saves">저장순</option>
       <option value="erate">참여율순</option>
     </select>
   </div>
 </div>
 <div class="activefilter" id="activeFilter"></div>
 <div class="toolbar tagbar" id="tagbar" style="display:none">
-  <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div><div class="nudges"><button class="nudge" data-nudge="collChips" data-dir="l">‹</button><button class="nudge" data-nudge="collChips" data-dir="r">›</button><button class="expbtn" data-expand="collChips" title="전체 펼치기">▾</button></div></div>
-  <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div><div class="nudges"><button class="nudge" data-nudge="tagChips" data-dir="l">‹</button><button class="nudge" data-nudge="tagChips" data-dir="r">›</button><button class="expbtn" data-expand="tagChips" title="전체 펼치기">▾</button></div></div>
+  <div class="chiprow"><div class="tchips" id="filterChips"></div><div class="nudges"><button class="expbtn" data-expand="filterChips" title="전체 펼치기">▾</button></div></div>
 </div>
 
 <main>
@@ -457,9 +453,8 @@
   <div class="lt"><span class="cnt" id="cmpCnt">0</span><span>개 선택됨</span></div>
   <div class="rt">
     <button class="clr" id="cmpClear">해제</button>
+    <button class="go" id="cmpTagMenu" style="background:#7C6FFF;color:#fff">태그</button>
     <button class="go danger" id="cmpDel">삭제</button>
-    <button class="go" id="cmpTag" style="background:#7C6FFF;color:#fff">태그 추가</button>
-    <button class="go" id="cmpUntag" style="background:#fff;color:#7C6FFF;border:1px solid #7C6FFF">태그 해제</button>
     <button class="go" id="cmpGo">비교하기</button>
   </div>
 </div>
@@ -554,6 +549,12 @@
       <div class="field">
         <label>내 보드</label>
         <div class="blist" id="boardList"></div>
+      </div>
+      <div class="field">
+        <label>데이터</label>
+        <button class="ghost" id="importBtn" style="width:100%;text-align:left">⤒ 가져오기 — JSON · ZIP · CSV · 엑셀</button>
+        <button class="ghost" id="exportBtn" style="width:100%;text-align:left;margin-top:8px">⤓ 백업 내보내기 — JSON</button>
+        <button class="ghost" id="acctRankBtn" style="width:100%;text-align:left;margin-top:8px">📊 계정 순위 보기</button>
       </div>
       <div class="field">
         <label>현재 보드 정리</label>
@@ -902,7 +903,6 @@ function openBoardModal(focusNew){
   document.getElementById("boardModalBg").classList.add("show");
   if(focusNew) setTimeout(()=>document.getElementById("newBoardName").focus(),60);
 }
-document.getElementById("newBoard").onclick=()=>openBoardModal(true);
 document.getElementById("manageBoards").onclick=()=>openBoardModal(false);
 document.getElementById("boardModalClose").onclick=()=>document.getElementById("boardModalBg").classList.remove("show");
 document.getElementById("boardModalBg").onclick=e=>{ if(e.target.id==="boardModalBg") e.currentTarget.classList.remove("show"); };
@@ -983,7 +983,7 @@ function visibleItems(){
 
 function renderTagChips(){
   const bar=document.getElementById("tagbar");
-  const collEl=document.getElementById("collChips"), tagEl=document.getElementById("tagChips");
+  const el=document.getElementById("filterChips");
   const tagCounts={}, collCounts={};
   items.forEach(i=>{
     (i.tags||[]).forEach(t=>{ if(t) tagCounts[t]=(tagCounts[t]||0)+1; });
@@ -993,13 +993,11 @@ function renderTagChips(){
   const colls=Object.keys(collCounts).sort((a,b)=>collCounts[b]-collCounts[a]);
   if(!tags.length && !colls.length){ bar.style.display="none"; filterTag=null; filterColl=null; return; }
   bar.style.display="flex";
-  document.getElementById("collLabel").textContent=collNoun();
   let ch=`<button class="tchip ${(!filterTag&&!filterColl)?'on':''}" data-kind="all">전체 <span class="tc">${items.length}</span></button>`;
   ch+=colls.map(t=>`<button class="tchip coll ${filterColl===t?'on':''}" data-kind="coll" data-v="${esc(t)}">${esc(t)} <span class="tc">${collCounts[t]}</span></button>`).join("");
-  collEl.innerHTML=ch;
-  document.getElementById("tagRow").style.display = tags.length?"flex":"none";
-  tagEl.innerHTML=tags.map(t=>`<button class="tchip ${filterTag===t?'on':''}" data-kind="tag" data-v="${esc(t)}">${esc(t)} <span class="tc">${tagCounts[t]}</span></button>`).join("");
-  bar.querySelectorAll(".tchip").forEach(c=>c.onclick=()=>{
+  ch+=tags.map(t=>`<button class="tchip ${filterTag===t?'on':''}" data-kind="tag" data-v="${esc(t)}">${esc(t)} <span class="tc">${tagCounts[t]}</span></button>`).join("");
+  el.innerHTML=ch;
+  el.querySelectorAll(".tchip").forEach(c=>c.onclick=()=>{
     const k=c.dataset.kind;
     if(k==="all"){ filterTag=null; filterColl=null; }
     else if(k==="coll"){ filterColl=c.dataset.v; filterTag=null; }
@@ -1008,34 +1006,19 @@ function renderTagChips(){
   });
 }
 
+
 function renderStats(){
   const el=document.getElementById("stats");
   const n=items.length;
-  const sum=k=>items.reduce((s,i)=>s+(+i[k]||0),0);
-  const totViews=sum("views"),totLikes=sum("likes"),totComments=sum("comments"),totSaves=sum("saves"),totShares=sum("shares");
-  const ers=items.map(erate).filter(x=>x!=null);
-  const avgEr=ers.length?(ers.reduce((a,b)=>a+b,0)/ers.length):null;
   const ts=items.map(i=>+i.createdAt||0).filter(Boolean);
   const lastD=ts.length?new Date(Math.max(...ts)):null;
   const fmtD=d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
-  if(isWebBoard() || isMetricless()){
-    const noun = isWebBoard()?"북마크":"항목";
-    el.innerHTML=`
-      <div class="stat"><div class="k">${noun}</div><div class="v">${n}<small> 개</small></div></div>
-      <div class="stat"><div class="k">마지막 저장일</div><div class="v" style="font-size:15px;font-family:var(--sans);font-weight:800">${lastD?fmtD(lastD):"–"}</div></div>`;
-    return;
-  }
+  const noun = isWebBoard()?"북마크":"저장";
   el.innerHTML=`
-    <div class="stat"><div class="k">레퍼런스</div><div class="v">${n}<small> 개</small></div></div>
-    <div class="stat"><div class="k">마지막 저장일</div><div class="v" style="font-size:15px;font-family:var(--sans);font-weight:800">${lastD?fmtD(lastD):"–"}</div></div>
-    <div class="stat"><div class="k">총 조회수</div><div class="v">${fmt(totViews)}</div></div>
-    <div class="stat"><div class="k">총 좋아요</div><div class="v">${fmt(totLikes)}</div></div>
-    <div class="stat"><div class="k">총 댓글</div><div class="v">${fmt(totComments)}</div></div>
-    <div class="stat"><div class="k">총 저장</div><div class="v">${fmt(totSaves)}</div></div>
-    <div class="stat"><div class="k">총 공유</div><div class="v">${fmt(totShares)}</div></div>
-    <div class="stat"><div class="k">평균 참여율</div><div class="v">${avgEr!=null?avgEr.toFixed(1)+"<small> %</small>":"–"}</div></div>
-  `;
+    <div class="stat"><div class="k">${noun}</div><div class="v">${n}<small> 개</small></div></div>
+    <div class="stat"><div class="k">마지막 저장일</div><div class="v" style="font-size:15px;font-family:var(--sans);font-weight:800">${lastD?fmtD(lastD):"–"}</div></div>`;
 }
+
 
 function renderChips(){
   const el=document.getElementById("platChips");
@@ -1080,7 +1063,7 @@ function cardHTML(it, topViews){
       <div class="cfoot">
         <button class="copybtn" data-copy="${it.id}">복사</button>
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">링크</a>`:""}
-        <button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
+        <button class="morebtn" data-more="${it.id}">⋯</button>
       </div>
     </div>`;
   }
@@ -1100,7 +1083,7 @@ function cardHTML(it, topViews){
       ${chips?`<div class="tags">${chips}</div>`:""}
       <div class="cfoot">
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">열기</a>`:""}
-        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
+        <button class="morebtn" data-more="${it.id}">⋯</button>
       </div>
     </div>`;
   }
@@ -1120,7 +1103,7 @@ function cardHTML(it, topViews){
         ${chips?`<div class="tags">${chips}</div>`:""}
         <div class="cfoot">
           ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">열기</a>`:""}
-          <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
+          <button class="morebtn" data-more="${it.id}">⋯</button>
         </div>
       </div>
     </div>`;
@@ -1132,8 +1115,8 @@ function cardHTML(it, topViews){
     <div class="thumb">
       ${thumb}
       <span class="pbadge" style="background:${p.color}">${p.label}</span>
-      ${isWinner?'<span class="winner">★ 최고조회</span>':''}
-      ${er!=null?`<span class="erate">참여 ${er.toFixed(1)}%</span>`:''}
+      ${isWinner && sortBy==="views"?'<span class="winner">★ 최고조회</span>':''}
+      ${er!=null && sortBy==="erate"?`<span class="erate">참여 ${er.toFixed(1)}%</span>`:''}
       <button class="selbox" data-sel="${it.id}">✓</button>
     </div>
     <div class="cbody">
@@ -1149,7 +1132,7 @@ function cardHTML(it, topViews){
       ${chips?`<div class="tags">${chips}</div>`:''}
       <div class="cfoot">
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기</a>`:''}
-        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
+        <button class="morebtn" data-more="${it.id}">⋯</button>
       </div>
     </div>
   </div>`;
@@ -1159,6 +1142,33 @@ function cardHTML(it, topViews){
 const BATCH=60;
 let _arr=[], _cursor=0, _topViews=0, _io=null, _delegated=false;
 
+let _ctx=null;
+function closeCtx(){ if(_ctx){ _ctx.classList.remove("show"); } }
+function openCtx(anchor, entries){
+  if(!_ctx){
+    _ctx=document.createElement("div"); _ctx.className="ctxmenu"; document.body.appendChild(_ctx);
+    document.addEventListener("click",e=>{ if(!_ctx.contains(e.target)) closeCtx(); },true);
+    window.addEventListener("scroll",closeCtx,{passive:true});
+  }
+  _ctx.innerHTML="";
+  entries.forEach(([label,fn,danger])=>{
+    const b=document.createElement("button");
+    b.textContent=label; if(danger) b.className="danger";
+    b.onclick=e=>{ e.stopPropagation(); closeCtx(); fn(); };
+    _ctx.appendChild(b);
+  });
+  _ctx.classList.add("show");
+  const r=anchor.getBoundingClientRect();
+  const mw=_ctx.offsetWidth, mh=_ctx.offsetHeight;
+  let x=Math.min(r.right-mw, window.innerWidth-mw-8); if(x<8) x=8;
+  let y=r.bottom+6; if(y+mh>window.innerHeight-8) y=r.top-mh-6;
+  _ctx.style.left=x+"px"; _ctx.style.top=Math.max(8,y)+"px";
+}
+function deleteItem(id){
+  if(!confirm("이 항목을 삭제할까요?")) return;
+  items=items.filter(i=>i.id!==id); selected.delete(id);
+  persist(); render(); toast("삭제했어요");
+}
 function copyText(t){
   const done=()=>toast("복사했어요 📋");
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -1181,12 +1191,13 @@ function ensureDelegation(){
     const cp=e.target.closest("[data-copy]");
     if(cp){ e.stopPropagation(); const it=items.find(i=>i.id===cp.dataset.copy);
       if(it){ copyText(it.memo||""); } return; }
-    const dl=e.target.closest("[data-del]");
-    if(dl){ e.stopPropagation();
-      if(confirm("이 항목을 삭제할까요?")){
-        items=items.filter(i=>i.id!==dl.dataset.del); selected.delete(dl.dataset.del);
-        persist(); render(); toast("삭제했어요");
-      } return; }
+    const mo=e.target.closest("[data-more]");
+    if(mo){ e.stopPropagation();
+      const it=items.find(i=>i.id===mo.dataset.more); if(!it) return;
+      const entries=[["✎ 편집",()=>openEdit(it.id)]];
+      if(it.platform!=="note") entries.push([it.unsave?"해제예정 취소":"해제예정 표시",()=>{it.unsave=!it.unsave;persist();render();}]);
+      entries.push(["삭제",()=>deleteItem(it.id),true]);
+      openCtx(mo, entries); return; }
     const ed=e.target.closest("[data-edit]");
     if(ed){ e.stopPropagation(); openEdit(ed.dataset.edit); return; }
     const us=e.target.closest("[data-unsave]");
@@ -1276,7 +1287,7 @@ function openAcctModal(){
   renderAcctList("");
   document.getElementById("acctModalBg").classList.add("show");
 }
-document.getElementById("acctRankBtn").onclick=openAcctModal;
+document.getElementById("acctRankBtn").onclick=()=>{document.getElementById("boardModalBg").classList.remove("show");openAcctModal();};
 document.getElementById("unsaveOnlyBtn").onclick=()=>{ filterUnsave=!filterUnsave; render(); };
 document.getElementById("acctModalClose").onclick=()=>document.getElementById("acctModalBg").classList.remove("show");
 document.getElementById("acctModalBg").onclick=e=>{ if(e.target.id==="acctModalBg") e.currentTarget.classList.remove("show"); };
@@ -1519,8 +1530,7 @@ function updateCmpBar(){
   const bar=document.getElementById("cmpbar");
   document.getElementById("cmpCnt").textContent=selected.size;
   bar.classList.toggle("show",selected.size>=1);
-  document.getElementById("cmpGo").disabled=selected.size<2;
-  document.getElementById("cmpGo").style.opacity=selected.size<2?.5:1;
+  document.getElementById("cmpGo").style.display=selected.size<2?"none":"";
 }
 document.getElementById("cmpClear").onclick=()=>{selected.clear();document.querySelectorAll(".card.sel").forEach(c=>c.classList.remove("sel"));updateCmpBar();};
 document.getElementById("cmpGo").onclick=openCompare;
@@ -1531,7 +1541,11 @@ document.getElementById("cmpDel").onclick=()=>{
   selected.clear();
   persist(); render(); updateCmpBar(); toast("삭제했어요");
 };
-document.getElementById("cmpTag").onclick=()=>{
+document.getElementById("cmpTagMenu").onclick=e=>{
+  e.stopPropagation();
+  openCtx(e.currentTarget,[["＋ 태그 추가",cmpAddTag],["－ 태그 해제",cmpRemoveTag]]);
+};
+const cmpAddTag=()=>{
   if(!selected.size){ toast("먼저 카드를 선택하세요"); return; }
   const t=(prompt(`선택한 ${selected.size}개에 추가할 태그 이름`)||"").trim();
   if(!t) return;
@@ -1542,7 +1556,7 @@ document.getElementById("cmpTag").onclick=()=>{
   render();
   toast(`'${t}' 태그 ${n}개에 추가`);
 };
-document.getElementById("cmpUntag").onclick=()=>{
+const cmpRemoveTag=()=>{
   if(!selected.size){ toast("먼저 카드를 선택하세요"); return; }
   const present=new Map();
   items.forEach(it=>{ if(selected.has(it.id)&&it.tags) it.tags.forEach(t=>present.set(t,(present.get(t)||0)+1)); });
@@ -2002,20 +2016,12 @@ function makeDragScrollable(el){
     if(Math.abs(e.deltaY)>=Math.abs(e.deltaX)){ el.scrollLeft+=e.deltaY; e.preventDefault(); }
   },{passive:false});
 }
-["collChips","tagChips","boardChips","platChips"].forEach(id=>makeDragScrollable(document.getElementById(id)));
+["filterChips","boardChips","platChips"].forEach(id=>makeDragScrollable(document.getElementById(id)));
 document.querySelectorAll(".expbtn").forEach(b=>{
   b.onclick=()=>{
     const el=document.getElementById(b.dataset.expand); if(!el) return;
     const on=el.classList.toggle("expand");
     b.classList.toggle("on",on); b.textContent=on?"▴":"▾";
-    b.parentNode.querySelectorAll(".nudge").forEach(n=>n.style.display=on?"none":"");
-  };
-});
-document.querySelectorAll(".nudge").forEach(b=>{
-  b.onclick=()=>{
-    const el=document.getElementById(b.dataset.nudge); if(!el) return;
-    const step=Math.max(180, el.clientWidth*0.7) * (b.dataset.dir==="l"?-1:1);
-    el.scrollBy({left:step, behavior:"smooth"});
   };
 });
 (async function init(){

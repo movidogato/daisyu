@@ -125,7 +125,7 @@
   }
   /* tag bar */
   .tagbar{margin-top:10px;flex-direction:column;align-items:stretch;gap:6px}
-  .chiprow{display:flex;align-items:center;gap:8px;min-width:0}
+  .chiprow{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;width:100%}
   .tagbar .tlabel{font-size:11px;font-weight:800;color:var(--ink-faint);letter-spacing:.04em;flex:none;text-transform:uppercase;width:44px}
   .tchips{
     display:flex;flex-wrap:nowrap;gap:6px;flex:1;min-width:0;max-width:100%;
@@ -372,7 +372,11 @@
   .nudge{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-weight:800;font-size:15px;line-height:1;padding:0}
   .nudge:active{background:#F3F8FC}
   @media(min-width:900px){.tagbar .nudges{display:none}}
-  .tchips,.bchips,.chips{touch-action:pan-x}
+  .tchips,.bchips,.chips{touch-action:pan-x;overscroll-behavior-x:contain}
+  .tchips.expand{flex-wrap:wrap;overflow-x:visible;cursor:default;padding-bottom:0}
+  .expbtn{flex:none;width:26px;height:26px;border-radius:8px;border:1px solid #C6E3FA;background:#EFF7FE;color:var(--accent-deep);font-weight:800;font-size:13px;line-height:1;padding:0}
+  .expbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  @media(min-width:900px){.expbtn{display:none}}
 
   /* ---------- note (memo) card ---------- */
   .card.note{padding:12px 12px 10px;gap:8px;background:linear-gradient(180deg,#FCFEFF,#F2F9FE);border:1px solid #DCEDFA}
@@ -438,8 +442,8 @@
 </div>
 <div class="activefilter" id="activeFilter"></div>
 <div class="toolbar tagbar" id="tagbar" style="display:none">
-  <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div><div class="nudges"><button class="nudge" data-nudge="collChips" data-dir="l">‹</button><button class="nudge" data-nudge="collChips" data-dir="r">›</button></div></div>
-  <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div><div class="nudges"><button class="nudge" data-nudge="tagChips" data-dir="l">‹</button><button class="nudge" data-nudge="tagChips" data-dir="r">›</button></div></div>
+  <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div><div class="nudges"><button class="nudge" data-nudge="collChips" data-dir="l">‹</button><button class="nudge" data-nudge="collChips" data-dir="r">›</button><button class="expbtn" data-expand="collChips" title="전체 펼치기">▾</button></div></div>
+  <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div><div class="nudges"><button class="nudge" data-nudge="tagChips" data-dir="l">‹</button><button class="nudge" data-nudge="tagChips" data-dir="r">›</button><button class="expbtn" data-expand="tagChips" title="전체 펼치기">▾</button></div></div>
 </div>
 
 <main>
@@ -1999,6 +2003,14 @@ function makeDragScrollable(el){
   },{passive:false});
 }
 ["collChips","tagChips","boardChips","platChips"].forEach(id=>makeDragScrollable(document.getElementById(id)));
+document.querySelectorAll(".expbtn").forEach(b=>{
+  b.onclick=()=>{
+    const el=document.getElementById(b.dataset.expand); if(!el) return;
+    const on=el.classList.toggle("expand");
+    b.classList.toggle("on",on); b.textContent=on?"▴":"▾";
+    b.parentNode.querySelectorAll(".nudge").forEach(n=>n.style.display=on?"none":"");
+  };
+});
 document.querySelectorAll(".nudge").forEach(b=>{
   b.onclick=()=>{
     const el=document.getElementById(b.dataset.nudge); if(!el) return;

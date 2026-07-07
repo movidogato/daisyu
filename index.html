@@ -231,14 +231,15 @@
   .tag.coll::before{content:"▣ ";opacity:.6}
   .tchip.coll{border-color:#B5D4F4;background:#EAF3FB;color:#185FA5}
   .tchip.coll.on{background:#378ADD;color:#fff;border-color:#378ADD}
-  .ubtn{font-size:11px;font-weight:700;padding:4px 8px;border-radius:7px;border:1px solid #F0997B;background:#FAECE7;color:#993C1D;cursor:pointer}
+  .ubtn{font-size:10.5px;font-weight:700;padding:4px 5px;white-space:nowrap;flex:1.4 1 auto;border-radius:7px;border:1px solid #F0997B;background:#FAECE7;color:#993C1D;cursor:pointer}
   .ubtn.on{background:#E24B4A;color:#fff;border-color:#E24B4A}
   .card.unsave{outline:2px solid #E24B4A;outline-offset:-2px}
   #unsaveOnlyBtn.on{background:#E24B4A;color:#fff;border-color:#E24B4A}
   .cfoot{display:flex;gap:6px;margin-top:auto;padding-top:4px}
   .cfoot a,.cfoot button{
-    flex:1;text-align:center;border:1px solid var(--line);background:#fff;color:var(--ink-soft);
-    border-radius:8px;padding:6px;font-size:11px;font-weight:700;text-decoration:none;transition:.12s;
+    flex:1 1 auto;min-width:0;text-align:center;border:1px solid var(--line);background:#fff;color:var(--ink-soft);
+    border-radius:8px;padding:6px 3px;font-size:10.5px;font-weight:700;text-decoration:none;transition:.12s;
+    white-space:nowrap;
   }
   .cfoot a:hover,.cfoot button:hover{background:#F4F8FB;color:var(--ink)}
   .cfoot a.open{color:var(--accent-deep);border-color:#C6E3FA;background:#EFF7FE}
@@ -267,7 +268,7 @@
   .card.web .tags{gap:3px}
   .card.web .tag{font-size:9.5px;padding:1px 6px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card.web .cfoot{gap:5px;padding-top:2px}
-  .card.web .cfoot a,.card.web .cfoot button{padding:5px 4px;font-size:11px;border-radius:7px}
+  .card.web .cfoot a,.card.web .cfoot button{padding:5px 3px;font-size:10.5px;border-radius:7px}
 
   /* ---------- Empty ---------- */
   .empty{
@@ -363,6 +364,16 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .menu-btn{background:#fff;border:1px solid var(--line);color:var(--ink-soft);border-radius:10px;padding:9px 11px;font-size:13px;font-weight:700;flex:none}
 
+  .cfoot .delbtn{flex:0 0 30px;padding:6px 0;color:#C0453F;border-color:#F0D2D2;background:#fff;font-size:12px}
+  .cfoot .delbtn:hover{background:#FBEFEF;color:#C0453F}
+  .cmpbar .danger{background:#E24B4A;color:#fff}
+
+  .nudges{display:flex;gap:4px;flex:none;align-items:center}
+  .nudge{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-weight:800;font-size:15px;line-height:1;padding:0}
+  .nudge:active{background:#F3F8FC}
+  @media(min-width:900px){.tagbar .nudges{display:none}}
+  .tchips,.bchips,.chips{touch-action:pan-x}
+
   /* ---------- note (memo) card ---------- */
   .card.note{padding:12px 12px 10px;gap:8px;background:linear-gradient(180deg,#FCFEFF,#F2F9FE);border:1px solid #DCEDFA}
   .card.note.sel{border-color:var(--accent)}
@@ -405,12 +416,14 @@
   </div>
   <div class="boardbar">
     <div class="bchips" id="boardChips"></div>
+    <div class="nudges"><button class="nudge" data-nudge="boardChips" data-dir="l">‹</button><button class="nudge" data-nudge="boardChips" data-dir="r">›</button></div>
   </div>
   <div class="stats" id="stats"></div>
 </header>
 
 <div class="toolbar">
   <div class="chips" id="platChips"></div>
+  <div class="nudges"><button class="nudge" data-nudge="platChips" data-dir="l">‹</button><button class="nudge" data-nudge="platChips" data-dir="r">›</button></div>
   <div class="sort-wrap">
     <button class="sort" id="acctRankBtn" title="계정 순위">계정 순위</button>
     <button class="sort" id="unsaveOnlyBtn" title="해제예정만 보기">해제예정</button>
@@ -425,8 +438,8 @@
 </div>
 <div class="activefilter" id="activeFilter"></div>
 <div class="toolbar tagbar" id="tagbar" style="display:none">
-  <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div></div>
-  <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div></div>
+  <div class="chiprow" id="collRow"><span class="tlabel" id="collLabel">컬렉션</span><div class="tchips" id="collChips"></div><div class="nudges"><button class="nudge" data-nudge="collChips" data-dir="l">‹</button><button class="nudge" data-nudge="collChips" data-dir="r">›</button></div></div>
+  <div class="chiprow" id="tagRow"><span class="tlabel">태그</span><div class="tchips" id="tagChips"></div><div class="nudges"><button class="nudge" data-nudge="tagChips" data-dir="l">‹</button><button class="nudge" data-nudge="tagChips" data-dir="r">›</button></div></div>
 </div>
 
 <main>
@@ -440,6 +453,7 @@
   <div class="lt"><span class="cnt" id="cmpCnt">0</span><span>개 선택됨</span></div>
   <div class="rt">
     <button class="clr" id="cmpClear">해제</button>
+    <button class="go danger" id="cmpDel">삭제</button>
     <button class="go" id="cmpTag" style="background:#7C6FFF;color:#fff">태그 추가</button>
     <button class="go" id="cmpUntag" style="background:#fff;color:#7C6FFF;border:1px solid #7C6FFF">태그 해제</button>
     <button class="go" id="cmpGo">비교하기</button>
@@ -1062,7 +1076,7 @@ function cardHTML(it, topViews){
       <div class="cfoot">
         <button class="copybtn" data-copy="${it.id}">복사</button>
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">링크</a>`:""}
-        <button data-edit="${it.id}">편집</button>
+        <button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
       </div>
     </div>`;
   }
@@ -1082,7 +1096,7 @@ function cardHTML(it, topViews){
       ${chips?`<div class="tags">${chips}</div>`:""}
       <div class="cfoot">
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">열기</a>`:""}
-        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button>
+        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
       </div>
     </div>`;
   }
@@ -1102,7 +1116,7 @@ function cardHTML(it, topViews){
         ${chips?`<div class="tags">${chips}</div>`:""}
         <div class="cfoot">
           ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">열기</a>`:""}
-          <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button>
+          <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
         </div>
       </div>
     </div>`;
@@ -1131,7 +1145,7 @@ function cardHTML(it, topViews){
       ${chips?`<div class="tags">${chips}</div>`:''}
       <div class="cfoot">
         ${it.url?`<a class="open" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기</a>`:''}
-        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button>
+        <button class="ubtn ${it.unsave?'on':''}" data-unsave="${it.id}" title="저장해제 예정 표시">${it.unsave?'해제예정 ✓':'해제예정'}</button><button data-edit="${it.id}">편집</button><button class="delbtn" data-del="${it.id}" title="삭제">✕</button>
       </div>
     </div>
   </div>`;
@@ -1163,6 +1177,12 @@ function ensureDelegation(){
     const cp=e.target.closest("[data-copy]");
     if(cp){ e.stopPropagation(); const it=items.find(i=>i.id===cp.dataset.copy);
       if(it){ copyText(it.memo||""); } return; }
+    const dl=e.target.closest("[data-del]");
+    if(dl){ e.stopPropagation();
+      if(confirm("이 항목을 삭제할까요?")){
+        items=items.filter(i=>i.id!==dl.dataset.del); selected.delete(dl.dataset.del);
+        persist(); render(); toast("삭제했어요");
+      } return; }
     const ed=e.target.closest("[data-edit]");
     if(ed){ e.stopPropagation(); openEdit(ed.dataset.edit); return; }
     const us=e.target.closest("[data-unsave]");
@@ -1500,6 +1520,13 @@ function updateCmpBar(){
 }
 document.getElementById("cmpClear").onclick=()=>{selected.clear();document.querySelectorAll(".card.sel").forEach(c=>c.classList.remove("sel"));updateCmpBar();};
 document.getElementById("cmpGo").onclick=openCompare;
+document.getElementById("cmpDel").onclick=()=>{
+  if(!selected.size) return;
+  if(!confirm(`선택한 ${selected.size}개 항목을 삭제할까요?`)) return;
+  items=items.filter(i=>!selected.has(i.id));
+  selected.clear();
+  persist(); render(); updateCmpBar(); toast("삭제했어요");
+};
 document.getElementById("cmpTag").onclick=()=>{
   if(!selected.size){ toast("먼저 카드를 선택하세요"); return; }
   const t=(prompt(`선택한 ${selected.size}개에 추가할 태그 이름`)||"").trim();
@@ -1972,6 +1999,13 @@ function makeDragScrollable(el){
   },{passive:false});
 }
 ["collChips","tagChips","boardChips","platChips"].forEach(id=>makeDragScrollable(document.getElementById(id)));
+document.querySelectorAll(".nudge").forEach(b=>{
+  b.onclick=()=>{
+    const el=document.getElementById(b.dataset.nudge); if(!el) return;
+    const step=Math.max(180, el.clientWidth*0.7) * (b.dataset.dir==="l"?-1:1);
+    el.scrollBy({left:step, behavior:"smooth"});
+  };
+});
 (async function init(){
   buildPlatPickers();
   try{ await initCloud(); }catch(e){}
